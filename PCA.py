@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pickle
 
 # Загрузка данных
-df = pd.read_csv('generated_data_first_step.csv', index_col=0)
+df = pd.read_csv("data_first_step.csv", index_col=0)
 
 # Корреляционная матрица
 fig, ax = plt.subplots(figsize=(40, 15))  # Увеличиваем размер холста
