@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 from generate_synthetic_data import generate_data, concatenate_data, check_randomness
-from PCA import run_pca, save_pca_model, load_and_apply_pca_model, standardize_data
-from metrix import plot_correlation_matrix, plot_pairwise_correlation, plot_factor_contributions, plot_stacked_factor_contributions
+from PCA import run_pca, save_pca_model, load_and_apply_pca_model, standardize_data, calculate_mean_pca_scores
+from metrix import plot_correlation_matrix, plot_pairwise_correlation, plot_factor_contributions, \
+    plot_stacked_factor_contributions
 
 # -----------------------Первый этап-----------------------------
 
@@ -67,7 +68,8 @@ save_pca_model(pca, 'pca_model.pkl')
 # Загрузка модели PCA и применение её к данным из каждого этапа
 load_and_apply_pca_model(['data_stage1.csv', 'data_stage2.csv', 'data_stage3.csv'],
                          'pca_model.pkl',
-                         ['pca_stage1.csv', 'pca_stage2.csv', 'pca_stage3.csv'])
+                         ['pca_stage1.csv', 'pca_stage2.csv', 'pca_stage3.csv'],
+                         ['score_stage1.csv', 'score_stage2.csv', 'score_stage3.csv'])
 
 # -----------------------Анализ данных-----------------------------
 
@@ -105,8 +107,9 @@ plot_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
 plot_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
 plot_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
 
-
 # Визуализация вклада признаков в факторы с помощью гистограммы с накоплением
 plot_stacked_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
 plot_stacked_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
 plot_stacked_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
+
+calculate_mean_pca_scores()
