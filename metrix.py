@@ -79,3 +79,4 @@ def plot_stacked_factor_contributions(pca_components, feature_names):
 
     plt.tight_layout()
     plt.show()
+

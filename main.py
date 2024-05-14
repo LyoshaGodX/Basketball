@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
+import PCA_tools
 from generate_synthetic_data import generate_data, concatenate_data, check_randomness
-from PCA import run_pca, save_pca_model, load_and_apply_pca_model, standardize_data, calculate_mean_pca_scores
+from PCA_tools import run_pca, save_pca_model, load_and_apply_pca_model, standardize_data, calculate_mean_pca_scores, pca_2_components_model_plot
 from metrix import plot_correlation_matrix, plot_pairwise_correlation, plot_factor_contributions, \
     plot_stacked_factor_contributions
 
@@ -22,7 +24,7 @@ errors_first_step = np.array([
 ])
 
 # Генерация синтетических данных для первого этапа
-generate_data(means_first_step, errors_first_step, 'data_stage1.csv')
+# generate_data(means_first_step, errors_first_step, 'data_stage1.csv')
 
 # -----------------------Второй этап-----------------------------
 
@@ -38,7 +40,7 @@ errors_second_step = np.array([
     0.49, 2.18, 2.91, 116.52
 ])
 
-generate_data(means_second_step, errors_second_step, 'data_stage2.csv')
+# generate_data(means_second_step, errors_second_step, 'data_stage2.csv')
 
 # -----------------------Третий этап-----------------------------
 
@@ -54,7 +56,7 @@ errors_third_step = np.array([
     0.64, 2.31, 2.52, 82.24
 ])
 
-generate_data(means_third_step, errors_third_step, 'data_stage3.csv')
+# generate_data(means_third_step, errors_third_step, 'data_stage3.csv')
 
 # Объединение данных из всех этапов
 concatenate_data(['data_stage1.csv', 'data_stage2.csv', 'data_stage3.csv'], 'combined_data.csv')
@@ -82,34 +84,29 @@ pca_stage1 = pd.read_csv('pca_stage1.csv', index_col=0)
 pca_stage2 = pd.read_csv('pca_stage2.csv', index_col=0)
 pca_stage3 = pd.read_csv('pca_stage3.csv', index_col=0)
 
-# Теперь удаляем из pca_stage* последнюю строку "Суммарный вклад"
 pca_stage1 = pca_stage1.drop(pca_stage1.tail(1).index)
 pca_stage2 = pca_stage2.drop(pca_stage2.tail(1).index)
 pca_stage3 = pca_stage3.drop(pca_stage3.tail(1).index)
 
-# # TODO: Проверка случайности данных
-# check_randomness(data_stage1, ...)
-# check_randomness(data_stage2, ...)
-# check_randomness(data_stage3, ...)
-
 # Визуализация матрицы корреляций
-# plot_correlation_matrix(data_stage1)
-# plot_correlation_matrix(data_stage2)
-# plot_correlation_matrix(data_stage3)
+plot_correlation_matrix(data_stage1)
+plot_correlation_matrix(data_stage2)
+plot_correlation_matrix(data_stage3)
 
-# # TODO: Парные корреляции между факторами
-# plot_pairwise_correlation((pca_stage1), (pca_stage2))
-# plot_pairwise_correlation((pca_stage2), (pca_stage3))
-# plot_pairwise_correlation((pca_stage1), (pca_stage3))
+# Визуализация вклада признаков в факторы
+plot_factor_contributions(pca_stage1, data_stage1.T.columns)
+plot_factor_contributions(pca_stage2, data_stage2.T.columns)
+plot_factor_contributions(pca_stage3, data_stage3.T.columns)
 
-# # Визуализация вклада признаков в факторы
-# plot_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
-# plot_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
-# plot_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
 
-# # Визуализация вклада признаков в факторы с помощью гистограммы с накоплением
-# plot_stacked_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
-# plot_stacked_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
-# plot_stacked_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
+# Визуализация вклада признаков в факторы с помощью гистограммы с накоплением
+plot_stacked_factor_contributions(pca_stage1, data_stage1.T.columns)
+plot_stacked_factor_contributions(pca_stage2, data_stage2.T.columns)
+plot_stacked_factor_contributions(pca_stage3, data_stage3.T.columns)
 
 calculate_mean_pca_scores()
+
+pca_2comp = run_pca(['data_stage1.csv', 'data_stage2.csv', 'data_stage3.csv'], n_components=2)
+pca_2_components_model_plot(['data_stage1.csv', 'data_stage2.csv', 'data_stage3.csv'], pca_2comp)
+
+PCA_tools.plot_elbow_method(['data_stage1.csv', 'data_stage2.csv', 'data_stage3.csv'])

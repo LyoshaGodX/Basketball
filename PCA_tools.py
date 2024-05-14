@@ -16,14 +16,36 @@ def load_and_apply_pca_model(data_files, model_file, output_files, output_scores
         data = load_data(data_file)
         standardized_data = standardize_data(data)
 
-        pca_array = pca.transform(standardized_data.T)
+        pca_array = pca.fit_transform(standardized_data.T)
 
         save_pca_components(pca, data, output_file, pca_array)
         save_pca_scores(pca, data, output_scores_file, pca_array)
 
 
+def pca_2_components_model_plot(data_files, pca):
+    """
+    Функция принимает на вход список файлов с исходными данными. Для каждого файла строит модель PCA с двумя компонентами. Далее функция строит график, на котором точками отмечена закономерность первой компоненты от второй. Все данные представлены на одном графике, каждый файл отмечен уникальным цветом.
+    """
+    plt.figure(figsize=(10, 7))
+
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    for i, data_file in enumerate(data_files):
+        data = load_data(data_file)
+        standardized_data = standardize_data(data)
+        pca_array = pca.transform(standardized_data.T)
+
+        plt.scatter(pca_array[:, 0], pca_array[:, 1], c=colors[i % len(colors)], label=data_file)
+
+    plt.title('Факторы', fontsize=16)
+    plt.xlabel('Главная компонента 1', fontsize=14)
+    plt.ylabel('Главная компонента 2', fontsize=14)
+    plt.legend()
+    plt.show()
+
+
 def save_pca_components(pca, data, file_name, pca_components=None):
-    df_pca = pd.DataFrame(normalize_weights(pca.components_.T), columns=[f'Фактор {i + 1}' for i in range(pca_components.shape[1])],
+    df_pca = pd.DataFrame(normalize_weights(pca.components_.T),
+                          columns=[f'Фактор {i + 1}' for i in range(pca_components.shape[1])],
                           index=data.index)
     df_pca = df_pca.rename_axis('Признаки', axis=0)
     df_pca.loc['Суммарный вклад'] = df_pca.abs().sum()
@@ -31,7 +53,7 @@ def save_pca_components(pca, data, file_name, pca_components=None):
 
 
 def save_pca_scores(pca, data, file_name, pca_scores=None):
-    df_pca_scores = pd.DataFrame(normalize_weights(pca_scores.T), columns=[f'Наблюдение {i + 1}' for i in range(pca_scores.shape[0])],
+    df_pca_scores = pd.DataFrame(pca_scores.T, columns=[f'Наблюдение {i + 1}' for i in range(pca_scores.shape[0])],
                                  index=[f'Главная компонента {i + 1}' for i in range(pca_scores.shape[1])])
     df_pca_scores.to_csv(file_name)
 
@@ -41,15 +63,18 @@ def standardize_data(data):
 
 
 def normalize_weights(weights):
-    min_val = np.min(weights)
-    max_val = np.max(weights)
-    range_val = max_val - min_val
-    
-    if range_val == 0:
-        return np.full_like(weights, 0.5)
-    
-    normalized_weights = (weights - min_val) / range_val
-    
+    normalized_weights = np.zeros_like(weights)
+    for i in range(weights.shape[1]):
+        col = weights[:, i]
+        min_val = np.min(col)
+        max_val = np.max(col)
+        range_val = max_val - min_val
+
+        if range_val == 0:
+            normalized_weights[:, i] = np.full_like(col, 0.5)
+        else:
+            normalized_weights[:, i] = (col - min_val) / range_val
+
     return normalized_weights
 
 
@@ -107,4 +132,18 @@ def plot_component_variance(pca):
     plt.xticks(range(1, len(pca.explained_variance_ratio_) + 1))
     plt.xlabel('Фактор')
     plt.ylabel('Вклад фактора в общую дисперсию, %')
+    plt.show()
+
+def plot_elbow_method(data_files):
+    combined_data = pd.concat([load_data(file) for file in data_files], axis=1)
+    standardized_data = standardize_data(combined_data)
+    explained_variances = []
+    for n in range(1, min(standardized_data.shape) + 1):
+        pca = PCA(n_components=n)
+        pca.fit(standardized_data.T)
+        explained_variances.append(sum(pca.explained_variance_ratio_))
+
+    plt.plot(range(1, min(standardized_data.shape) + 1), explained_variances, marker='o')
+    plt.xlabel('Number of components')
+    plt.ylabel('Cumulative explained variance')
     plt.show()
