@@ -23,7 +23,7 @@ def load_and_apply_pca_model(data_files, model_file, output_files, output_scores
 
 
 def save_pca_components(pca, data, file_name, pca_components=None):
-    df_pca = pd.DataFrame(pca.components_.T, columns=[f'Фактор {i + 1}' for i in range(pca_components.shape[1])],
+    df_pca = pd.DataFrame(normalize_weights(pca.components_.T), columns=[f'Фактор {i + 1}' for i in range(pca_components.shape[1])],
                           index=data.index)
     df_pca = df_pca.rename_axis('Признаки', axis=0)
     df_pca.loc['Суммарный вклад'] = df_pca.abs().sum()
@@ -31,13 +31,26 @@ def save_pca_components(pca, data, file_name, pca_components=None):
 
 
 def save_pca_scores(pca, data, file_name, pca_scores=None):
-    df_pca_scores = pd.DataFrame(pca_scores.T, columns=[f'Наблюдение {i + 1}' for i in range(pca_scores.shape[0])],
+    df_pca_scores = pd.DataFrame(normalize_weights(pca_scores.T), columns=[f'Наблюдение {i + 1}' for i in range(pca_scores.shape[0])],
                                  index=[f'Главная компонента {i + 1}' for i in range(pca_scores.shape[1])])
     df_pca_scores.to_csv(file_name)
 
 
 def standardize_data(data):
     return (data - data.mean()) / data.std()
+
+
+def normalize_weights(weights):
+    min_val = np.min(weights)
+    max_val = np.max(weights)
+    range_val = max_val - min_val
+    
+    if range_val == 0:
+        return np.full_like(weights, 0.5)
+    
+    normalized_weights = (weights - min_val) / range_val
+    
+    return normalized_weights
 
 
 def save_pca_model(pca, file_name):
@@ -69,7 +82,7 @@ def calculate_mean_pca_scores():
                              scores_stage3.mean(axis=1)], axis=1)
 
     # Сохранение результатов в файл
-    mean_scores.to_csv('score_all_stages.csv', header=['Этап I', 'Этап II', 'Этап II'])
+    mean_scores.to_csv('score_all_stages.csv', header=['Этап I', 'Этап II', 'Этап III'])
 
 
 def plot_correlation_matrix(data):

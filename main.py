@@ -93,23 +93,23 @@ pca_stage3 = pca_stage3.drop(pca_stage3.tail(1).index)
 # check_randomness(data_stage3, ...)
 
 # Визуализация матрицы корреляций
-plot_correlation_matrix(data_stage1)
-plot_correlation_matrix(data_stage2)
-plot_correlation_matrix(data_stage3)
+# plot_correlation_matrix(data_stage1)
+# plot_correlation_matrix(data_stage2)
+# plot_correlation_matrix(data_stage3)
 
-# TODO: Парные корреляции между факторами
-plot_pairwise_correlation((pca_stage1), (pca_stage2))
-plot_pairwise_correlation((pca_stage2), (pca_stage3))
-plot_pairwise_correlation((pca_stage1), (pca_stage3))
+# # TODO: Парные корреляции между факторами
+# plot_pairwise_correlation((pca_stage1), (pca_stage2))
+# plot_pairwise_correlation((pca_stage2), (pca_stage3))
+# plot_pairwise_correlation((pca_stage1), (pca_stage3))
 
-# Визуализация вклада признаков в факторы
-plot_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
-plot_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
-plot_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
+# # Визуализация вклада признаков в факторы
+# plot_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
+# plot_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
+# plot_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
 
-# Визуализация вклада признаков в факторы с помощью гистограммы с накоплением
-plot_stacked_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
-plot_stacked_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
-plot_stacked_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
+# # Визуализация вклада признаков в факторы с помощью гистограммы с накоплением
+# plot_stacked_factor_contributions(standardize_data(pca_stage1), data_stage1.T.columns)
+# plot_stacked_factor_contributions(standardize_data(pca_stage2), data_stage2.T.columns)
+# plot_stacked_factor_contributions(standardize_data(pca_stage3), data_stage3.T.columns)
 
 calculate_mean_pca_scores()
